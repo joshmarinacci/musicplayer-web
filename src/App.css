@@ -1,0 +1,87 @@
+#grid {
+    width: 100vw;
+    height: 100vh;
+    border: 0px solid red;
+    display: grid;
+    grid-template-columns: [sources] 10em [query] 10em [results] 1fr [right];
+    grid-template-rows: [toolbar] 3em [header]1.5em [content] 1fr [status] 2em [bottom];
+    background-color: #333;
+    grid-gap: 1px;
+}
+
+
+.toolbar {
+    grid-row: toolbar;
+    grid-column: sources/right;
+    background-color: #ccc;
+    display: flex;
+    flex-direction: row;
+    justify-content: baseline;
+    align-content: baseline;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.info-panel {
+    background-color: #ccc;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    grid-row: header;
+    background-color: #888;
+    color: white;
+    padding: 0.25em 0.5em;
+}
+
+.sources {
+    background-color: white;
+    grid-row: content;
+    grid-column: sources;
+    margin:0;
+    padding:0;
+    list-style: none;
+}
+.sources li, .query li {
+    padding: 0.25em 0.5em;
+}
+
+.query {
+    background-color: white;
+    grid-row: content;
+    grid-column: query;
+    margin:0;
+    list-style: none;
+    padding:0;
+}
+
+.results {
+    background-color: white;
+    grid-row: content;
+    grid-column: results;
+    overflow: scroll;
+}
+
+.results .results-content {
+    width: 500px;
+    border: 1px solid gray;
+    border-collapse: collapse;
+}
+.results td {
+    border: 1px solid gray;
+    background-color: white;
+}
+.results th {
+    background-color: #888;
+    color: white;
+    padding: 0.1em 0.3em;
+}
+
+.status {
+    grid-row: status;
+    grid-column: sources/right;
+    background-color: white;
+}

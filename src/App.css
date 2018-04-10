@@ -4,7 +4,7 @@
     border: 0px solid red;
     display: grid;
     grid-template-columns: [sources] 8em [query] 8em [query2]8em [results] 1fr [right];
-    grid-template-rows: [toolbar] 3em [header]1.5em [content] 1fr [status] 2em [bottom];
+    grid-template-rows: [toolbar] 5em [header]1.5em [content] 1fr [status] 2em [bottom];
     background-color: #333;
     grid-gap: 1px;
 }
@@ -25,9 +25,12 @@
 }
 
 .info-panel {
-    background-color: #ccc;
+    background-color: #ddd;
+    border-radius: 1em;
     display: flex;
     flex-direction: column;
+    padding: 0.25em 0.5em;
+    font-size: 80%;
 }
 
 header {

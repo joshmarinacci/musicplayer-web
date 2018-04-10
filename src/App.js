@@ -26,6 +26,7 @@ function GET_JSON(path, cb) {
 class MusicStore {
     constructor() {
         this.artists_map = {}
+        this.albums_map = {}
     }
     getArtists() {
         return GET_JSON(BASE_URL+'/artists').then((artists)=>{
@@ -36,13 +37,20 @@ class MusicStore {
         })
     }
     getAlbums(artist) {
-        return GET_JSON(BASE_URL+'/artists/'+artist._id+'/albums')
+        return GET_JSON(BASE_URL+'/artists/'+artist._id+'/albums').then(albums => {
+            albums.forEach(album => this.albums_map[album._id] = album)
+            return albums
+        })
     }
     getSongsForAlbumForArtist(artist,album) {
         return GET_JSON(BASE_URL+'/artists/'+artist._id+"/albums/"+album._id+'/songs')
     }
     getArtistById(id) {
         return this.artists_map[id]
+    }
+
+    getAlbumById(id) {
+        return this.albums_map[id]
     }
 }
 
@@ -65,6 +73,8 @@ class App extends Component {
             selectedQuery:null,
             selectedQuery2:null,
             selectedSong:null,
+            playing:false,
+            currentTime:0,
         }
 
         STORE.getArtists().then((artists)=>{
@@ -88,18 +98,27 @@ class App extends Component {
     songSelected = (item) => {
         this.setState({selectedSong:item})
     }
+    togglePlaying = () => {
+        if(this.state.playing) {
+            this.audio.pause()
+            this.setState({playing:false})
+        } else {
+            this.audio.src = `${BASE_URL}/songs/getfile/${this.state.selectedSong._id}`
+            this.audio.play().then(() => this.setState({playing: true, currentTime:0}))
+        }
+    }
     render() {
         return (
             <div id='grid'>
+                <audio ref={(ref)=>this.audio = ref}
+                       onPlaying={(e)=>console.log("playing",e.target)}
+                       onPause={(e)=>console.log("paused")}
+                       onTimeUpdate={e =>this.setState({currentTime:e.target.currentTime})}
+                />
               <div className="toolbar">
-                <button className="fa fa-play"/>
+                  {this.renderPlayPauseButton(this.state.playing)}
                 <i className="spacer"/>
-                <div className="info-panel">
-                  <label>song title</label>
-                  <label>artist</label>
-                  <label>album</label>
-                  <label>time</label>
-                </div>
+                  {this.renderInfoPanel(this.state.selectedSong)}
                   <i className="spacer"/>
                 <input type="search"/>
               </div>
@@ -136,11 +155,39 @@ class App extends Component {
                                 HeaderTemplate={SongTableHeaderTemplate}
                 />
               <div className="status">
-                playing
+                  {this.state.playing?'playing':'paused'}
               </div>
             </div>
         );
     }
+
+    renderPlayPauseButton(playing) {
+        if(playing) {
+            return <button className="fa fa-pause" onClick={this.togglePlaying}/>
+        } else {
+            return <button className="fa fa-play" onClick={this.togglePlaying}/>
+        }
+    }
+
+    renderInfoPanel(song) {
+        if(!song) {
+            return <div className="info-panel">
+            </div>
+        }
+        return <div className="info-panel">
+            <label>{song.title}</label>
+            <label>{STORE.getArtistById(song.artist).name}</label>
+            <label>{STORE.getAlbumById(song.album).name}</label>
+            <label>{toTime(this.audio.duration)} {toTime(this.state.currentTime)}</label>
+        </div>
+    }
+}
+
+function toTime(dur){
+    if(isNaN(dur)) return '0'
+    const min = Math.floor(dur/60)
+    const sec = Math.floor(dur-min*60)
+    return `${min}:${sec}`
 }
 
 const SourceTemplate = (props) => {

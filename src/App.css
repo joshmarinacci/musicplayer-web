@@ -18,6 +18,7 @@
     flex-direction: row;
     justify-content: baseline;
     align-content: baseline;
+    align-items: center;
 }
 
 .spacer {

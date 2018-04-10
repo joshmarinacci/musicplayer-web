@@ -75,6 +75,8 @@ class App extends Component {
             selectedSong:null,
             playing:false,
             currentTime:0,
+            currentPlaylist:[],
+            currentIndex:-1,
         }
 
         STORE.getArtists().then((artists)=>{
@@ -100,12 +102,45 @@ class App extends Component {
     }
     togglePlaying = () => {
         if(this.state.playing) {
-            this.audio.pause()
-            this.setState({playing:false})
+            this.stopSong()
         } else {
-            this.audio.src = `${BASE_URL}/songs/getfile/${this.state.selectedSong._id}`
-            this.audio.play().then(() => this.setState({playing: true, currentTime:0}))
+            const currentPlaylist = this.state.results
+            const currentIndex = this.state.results.indexOf(this.state.selectedSong)
+            const song = currentPlaylist[currentIndex]
+            console.log(currentPlaylist, currentIndex, song)
+            this.setState({currentPlaylist: currentPlaylist, currentIndex: currentIndex})
+            this.startSong(song)
         }
+    }
+    navPrevSong = (song) => {
+        const prev = this.state.currentIndex-1
+        if(prev >= 0 && prev < this.state.currentPlaylist.length) {
+            this.setState({currentIndex: prev})
+            this.audio.pause()
+            this.startSong(this.state.currentPlaylist[prev])
+        } else {
+            console.log("invalid index",prev)
+            this.stopSong()
+        }
+    }
+    navNextSong = (song) => {
+        const next = this.state.currentIndex+1
+        if(next >= 0 && next < this.state.currentPlaylist.length) {
+            this.setState({currentIndex: next})
+            this.audio.pause()
+            this.startSong(this.state.currentPlaylist[next])
+        } else {
+            console.log("invalid index",next)
+            this.stopSong()
+        }
+    }
+    startSong = (song) => {
+        this.audio.src = `${BASE_URL}/songs/getfile/${song._id}`
+        this.audio.play().then(() => this.setState({playing: true, currentTime:0}))
+    }
+    stopSong = () => {
+        this.audio.pause()
+        this.setState({playing:false})
     }
     render() {
         return (
@@ -116,9 +151,11 @@ class App extends Component {
                        onTimeUpdate={e =>this.setState({currentTime:e.target.currentTime})}
                 />
               <div className="toolbar">
+                  <button className="fa fa-fast-backward" onClick={this.navPrevSong}/>
                   {this.renderPlayPauseButton(this.state.playing)}
+                  <button className="fa fa-fast-forward" onClick={this.navNextSong}/>
                 <i className="spacer"/>
-                  {this.renderInfoPanel(this.state.selectedSong)}
+                  {this.renderInfoPanel()}
                   <i className="spacer"/>
                 <input type="search"/>
               </div>
@@ -169,11 +206,10 @@ class App extends Component {
         }
     }
 
-    renderInfoPanel(song) {
-        if(!song) {
-            return <div className="info-panel">
-            </div>
-        }
+    renderInfoPanel() {
+        if(!this.state.currentPlaylist) return <div className="info-panel"></div>
+        const song = this.state.currentPlaylist[this.state.currentIndex]
+        if(!song)  return <div className="info-panel"></div>
         return <div className="info-panel">
             <label>{song.title}</label>
             <label>{STORE.getArtistById(song.artist).name}</label>
@@ -185,8 +221,9 @@ class App extends Component {
 
 function toTime(dur){
     if(isNaN(dur)) return '0'
-    const min = Math.floor(dur/60)
-    const sec = Math.floor(dur-min*60)
+    const min = Math.floor(dur/60)+''
+    let sec = Math.floor(dur-min*60)+''
+    if(sec.length < 2) sec = '0'+sec
     return `${min}:${sec}`
 }
 
@@ -215,9 +252,9 @@ class SelectionTable extends Component {
         const {ItemTemplate, HeaderTemplate, ...rest} = this.props
         return <div {...rest}><table>
             <thead>
-            {Object.keys(this.props.columns).map(col => {
+            <tr>{Object.keys(this.props.columns).map(col => {
                 return <HeaderTemplate key={col} column={col} columns={this.props.columns} list={this.props.list}/>
-            })}
+            })}</tr>
             </thead>
             <tbody>
             {this.props.list.map((row,i)=>{

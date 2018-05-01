@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import 'font-awesome/css/font-awesome.min.css'
 
-const BASE_URL = "http://joshy.org:19872/api"
+const BASE_URL = "http://music.josh.earth/api"
 
 function GET_JSON(path, cb) {
     return new Promise((res,rej) => {
@@ -112,7 +112,7 @@ class App extends Component {
             this.startSong(song)
         }
     }
-    navPrevSong = (song) => {
+    navPrevSong = () => {
         const prev = this.state.currentIndex-1
         if(prev >= 0 && prev < this.state.currentPlaylist.length) {
             this.setState({currentIndex: prev})
@@ -123,7 +123,7 @@ class App extends Component {
             this.stopSong()
         }
     }
-    navNextSong = (song) => {
+    navNextSong = () => {
         const next = this.state.currentIndex+1
         if(next >= 0 && next < this.state.currentPlaylist.length) {
             this.setState({currentIndex: next})
@@ -148,6 +148,7 @@ class App extends Component {
                 <audio ref={(ref)=>this.audio = ref}
                        onPlaying={(e)=>console.log("playing",e.target)}
                        onPause={(e)=>console.log("paused")}
+                       onEnded={(e)=>this.navNextSong()}
                        onTimeUpdate={e =>this.setState({currentTime:e.target.currentTime})}
                 />
               <div className="toolbar">
@@ -185,7 +186,7 @@ class App extends Component {
                 <header>results</header>
                 <SelectionTable id="results"
                                 ItemTemplate={SongTableItemTemplate}
-                                columns={{'title':'Title', 'artist':'Artist'}}
+                                columns={{'title':'Title', 'artist':'Artist', 'track':'Track'}}
                                 list={this.state.results}
                                 onSelect={this.songSelected}
                                 selected={this.state.selectedSong}
@@ -257,22 +258,26 @@ class SelectionTable extends Component {
             })}</tr>
             </thead>
             <tbody>
-            {this.props.list.map((row,i)=>{
-                return <tr key={i}>
-                    {
-                        Object.keys(this.props.columns).map(col => {
-                            return <ItemTemplate key={col} row={row}
-                                                 column={col}
-                                                 onSelect={this.props.onSelect}
-                                                 selected={row===this.props.selected}
-                            />
-                        })
-                    }
-                </tr>
-            })}
-
+            {this.renderBody(this.props.list,'')}
             </tbody>
         </table></div>
+    }
+
+    renderBody(list,key) {
+        const {ItemTemplate, HeaderTemplate, ...rest} = this.props
+        return list.map((row,i)=>{
+            return <tr key={i+"-"+key}>
+                {
+                    Object.keys(this.props.columns).map(col => {
+                        return <ItemTemplate key={col} row={row}
+                                             column={col}
+                                             onSelect={this.props.onSelect}
+                                             selected={row===this.props.selected}
+                        />
+                    })
+                }
+            </tr>
+        })
     }
 }
 

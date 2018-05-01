@@ -76,13 +76,14 @@ table thead {
 }
 
 #results table {
-    width: 500px;
+    width: 800px;
     border: 1px solid gray;
     border-collapse: collapse;
 }
 td {
-    border: 1px solid gray;
+    border: 1px solid #ddd;
     background-color: white;
+    padding: 0.25em 0.5em;
 }
 th {
     background-color: #888;
@@ -101,4 +102,19 @@ th {
 
 .selected {
     background-color: greenyellow;
+}
+
+
+
+/* =================== form =============== */
+.form-horizontal {
+    display: grid;
+    grid-template-columns: [label]1fr [editor]2fr [end];
+}
+
+.form-horizontal label {
+    grid-column: label;
+}
+.form-horizontal input, span {
+    grid-column: editor;
 }

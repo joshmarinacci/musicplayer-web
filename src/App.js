@@ -1,58 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
 import 'font-awesome/css/font-awesome.min.css'
-
-const BASE_URL = "http://music.josh.earth/api"
-
-function GET_JSON(path, cb) {
-    return new Promise((res,rej) => {
-        console.log("fetching",path);
-        const req = new XMLHttpRequest()
-        req.onreadystatechange = function() {
-            // console.log("got",req.readyState, req.status)
-            if(req.readyState === 4) {
-                if(req.status === 200) return res(JSON.parse(req.responseText));
-                //if anything other than 200, reject it
-                rej(req)
-            }
-            if(req.status === 500) rej(req);
-            if(req.status === 404) rej(req);
-        };
-        req.open("GET",path,true);
-        req.send();
-    });
-}
-
-class MusicStore {
-    constructor() {
-        this.artists_map = {}
-        this.albums_map = {}
-    }
-    getArtists() {
-        return GET_JSON(BASE_URL+'/artists').then((artists)=>{
-            artists.forEach((artist)=>{
-                this.artists_map[artist._id] = artist
-            })
-            return artists
-        })
-    }
-    getAlbums(artist) {
-        return GET_JSON(BASE_URL+'/artists/'+artist._id+'/albums').then(albums => {
-            albums.forEach(album => this.albums_map[album._id] = album)
-            return albums
-        })
-    }
-    getSongsForAlbumForArtist(artist,album) {
-        return GET_JSON(BASE_URL+'/artists/'+artist._id+"/albums/"+album._id+'/songs')
-    }
-    getArtistById(id) {
-        return this.artists_map[id]
-    }
-
-    getAlbumById(id) {
-        return this.albums_map[id]
-    }
-}
+import MusicStore from './MusicStore'
+import {Dialog, DialogContainer, DialogManager} from "appy-comps"
+import MetadataEditorDialog from './MetadataEditorDialog'
 
 const STORE = new MusicStore()
 
@@ -99,6 +50,7 @@ class App extends Component {
     }
     songSelected = (item) => {
         this.setState({selectedSong:item})
+        STORE.setSelection([item])
     }
     togglePlaying = () => {
         if(this.state.playing) {
@@ -135,7 +87,7 @@ class App extends Component {
         }
     }
     startSong = (song) => {
-        this.audio.src = `${BASE_URL}/songs/getfile/${song._id}`
+        this.audio.src = STORE.getSongURL(song)
         this.audio.play().then(() => this.setState({playing: true, currentTime:0}))
     }
     stopSong = () => {
@@ -192,9 +144,8 @@ class App extends Component {
                                 selected={this.state.selectedSong}
                                 HeaderTemplate={SongTableHeaderTemplate}
                 />
-              <div className="status">
-                  {this.state.playing?'playing':'paused'}
-              </div>
+                {this.renderStatusBar()}
+                <DialogContainer/>
             </div>
         );
     }
@@ -217,6 +168,17 @@ class App extends Component {
             <label>{STORE.getAlbumById(song.album).name}</label>
             <label>{toTime(this.audio.duration)} {toTime(this.state.currentTime)}</label>
         </div>
+    }
+
+    renderStatusBar() {
+        return <div className="status">
+            {this.state.playing?'playing':'paused'}
+            <button onClick={this.editSelection}>edit</button>
+        </div>
+    }
+
+    editSelection = () => {
+        DialogManager.show(<MetadataEditorDialog store={STORE}/>)
     }
 }
 

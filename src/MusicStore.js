@@ -53,6 +53,12 @@ export default class MusicStore {
             return artists
         })
     }
+    getAllAlbums() {
+        return GET_JSON(BASE_URL+'/albums').then((albums)=>{
+            albums.forEach(album => this.albums_map[album._id] = album)
+            return albums
+        })
+    }
     getAlbums(artist) {
         return GET_JSON(BASE_URL+'/artists/'+artist._id+'/albums').then(albums => {
             albums.forEach(album => this.albums_map[album._id] = album)
@@ -62,11 +68,15 @@ export default class MusicStore {
     getSongsForAlbumForArtist(artist,album) {
         return GET_JSON(BASE_URL+'/artists/'+artist._id+"/albums/"+album._id+'/songs')
     }
+    getSongsForAlbum = (album) => GET_JSON(BASE_URL+'/albums/'+album._id+'/songs')
+    getAllSongs = () => GET_JSON(BASE_URL+'/songs/')
+
     getArtistById(id) {
         return this.artists_map[id]
     }
 
-    getAlbumById(id) {
+    getAlbumById = (id) => {
+        if(!this.albums_map[id]) return { name:'unknown'}
         return this.albums_map[id]
     }
 

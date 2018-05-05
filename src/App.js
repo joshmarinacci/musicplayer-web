@@ -37,7 +37,18 @@ class App extends Component {
         })
     }
 
-    sourcesItemSelected = (item) => this.setState({selectedSource:item})
+    sourcesItemSelected = (item) => {
+        this.setState({selectedSource:item})
+        if(item === 'artists') {
+            return STORE.getArtists().then( artists => this.setState({query:artists}))
+        }
+        if(item === 'albums') {
+            return STORE.getAllAlbums().then( albums => this.setState({query2:albums}))
+        }
+        if(item === 'songs') {
+            return STORE.getAllSongs().then( songs => this.setState({results:songs}))
+        }
+    }
     queryItemSelected = (item) => {
         this.setState({selectedQuery:item})
         STORE.getAlbums(item).then((albums)=>{
@@ -46,7 +57,7 @@ class App extends Component {
     }
     queryItemSelected2 = (item) => {
         this.setState({selectedQuery2:item})
-        STORE.getSongsForAlbumForArtist(this.state.selectedQuery,item).then((songs)=>{
+        STORE.getSongsForAlbum(item).then((songs)=>{
             this.setState({results:songs})
         })
     }
@@ -149,7 +160,7 @@ class App extends Component {
                 <header>results</header>
                 <SelectionTable id="results"
                                 ItemTemplate={SongTableItemTemplate}
-                                columns={{'title':'Title', 'artist':'Artist', 'track':'Track'}}
+                                columns={{'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album'}}
                                 list={this.state.results}
                                 onSelect={this.songSelected}
                                 isSelected={this.isSelected}
@@ -225,6 +236,9 @@ const SongTableItemTemplate = (props) => {
     let val = props.row[props.column]
     if(props.column === 'artist') {
         val = STORE.getArtistById(val).name
+    }
+    if(props.column === 'album') {
+        val = STORE.getAlbumById(val).name
     }
     return <td className={props.selected?"selected":""}
                onClick={(e)=>props.onSelect(props.row,e)}>{val}</td>

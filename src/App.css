@@ -84,6 +84,7 @@ td {
     border: 1px solid #ddd;
     background-color: white;
     padding: 0.25em 0.5em;
+    user-select: none;
 }
 th {
     background-color: #888;

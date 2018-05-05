@@ -43,6 +43,7 @@ export default class MusicStore {
     constructor() {
         this.artists_map = {}
         this.albums_map = {}
+        this.selection = []
     }
     getArtists() {
         return GET_JSON(BASE_URL+'/artists').then((artists)=>{
@@ -78,15 +79,31 @@ export default class MusicStore {
     }
 
     getFirstSelectedSong() {
-        if(this.selection && this.selection.length > 0) return this.selection[0]
-        return null
+        return this.selection[0]
     }
 
+    isSelected(song) {
+        return this.selection.includes(song)
+    }
+
+    addToSelection(song) {
+        this.selection.push(song)
+    }
+    replaceSelection(arr) {
+        this.selection = arr
+    }
+    getSelection() {
+        return this.selection
+    }
+
+
     updateSongFields(song, fields) {
-        console.log('updating',song,'with fields',fields)
-        return POST_JSON(`${BASE_URL}/songs/update/${song._id}`,fields).then(res => {
-            console.log("got back the result",res)
-        })
+        return POST_JSON(`${BASE_URL}/songs/update/${song._id}`,fields)
+    }
+
+    deleteSelectedSongs() {
+        const ids = this.selection.map(s=>s._id)
+        return POST_JSON(`${BASE_URL}/songs/delete/`,ids)
     }
 
 

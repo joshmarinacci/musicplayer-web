@@ -4,6 +4,8 @@ import 'font-awesome/css/font-awesome.min.css'
 import MusicStore from './MusicStore'
 import {Dialog, DialogContainer, DialogManager} from "appy-comps"
 import MetadataEditorDialog from './MetadataEditorDialog'
+import SelectionTable from './SelectionTable'
+import DeleteDialog from './DeleteDialog'
 
 const STORE = new MusicStore()
 
@@ -23,7 +25,7 @@ class App extends Component {
             selectedSource:null,
             selectedQuery:null,
             selectedQuery2:null,
-            selectedSong:null,
+            selectedSongs:[],
             playing:false,
             currentTime:0,
             currentPlaylist:[],
@@ -48,16 +50,25 @@ class App extends Component {
             this.setState({results:songs})
         })
     }
-    songSelected = (item) => {
-        this.setState({selectedSong:item})
-        STORE.setSelection([item])
+    refreshSongs = () => {
+        STORE.getSongsForAlbumForArtist(this.state.selectedQuery,this.state.selectedQuery2)
+            .then(songs => this.setState({results:songs}) )
     }
+    songSelected = (item,e) => {
+        if (e.shiftKey) {
+            STORE.addToSelection(item)
+        } else {
+            STORE.replaceSelection([item])
+        }
+        this.setState({selectedSongs:STORE.getSelection()})
+    }
+    isSelected = (item) => STORE.isSelected(item)
     togglePlaying = () => {
         if(this.state.playing) {
             this.stopSong()
         } else {
             const currentPlaylist = this.state.results
-            const currentIndex = this.state.results.indexOf(this.state.selectedSong)
+            const currentIndex = this.state.results.indexOf(STORE.getFirstSelectedSong())
             const song = currentPlaylist[currentIndex]
             console.log(currentPlaylist, currentIndex, song)
             this.setState({currentPlaylist: currentPlaylist, currentIndex: currentIndex})
@@ -141,7 +152,7 @@ class App extends Component {
                                 columns={{'title':'Title', 'artist':'Artist', 'track':'Track'}}
                                 list={this.state.results}
                                 onSelect={this.songSelected}
-                                selected={this.state.selectedSong}
+                                isSelected={this.isSelected}
                                 HeaderTemplate={SongTableHeaderTemplate}
                 />
                 {this.renderStatusBar()}
@@ -173,13 +184,13 @@ class App extends Component {
     renderStatusBar() {
         return <div className="status">
             {this.state.playing?'playing':'paused'}
-            <button onClick={this.editSelection}>edit</button>
+            <button onClick={this.editSelection}>Edit</button>
+            <button onClick={this.deleteSelection}>Delete</button>
         </div>
     }
 
-    editSelection = () => {
-        DialogManager.show(<MetadataEditorDialog store={STORE}/>)
-    }
+    editSelection = () =>  DialogManager.show(<MetadataEditorDialog store={STORE}/>)
+    deleteSelection = () => DialogManager.show(<DeleteDialog store={STORE} onComplete={this.refreshSongs}/>)
 }
 
 function toTime(dur){
@@ -210,46 +221,13 @@ class SelectionListView extends Component {
     }
 }
 
-class SelectionTable extends Component {
-    render() {
-        const {ItemTemplate, HeaderTemplate, ...rest} = this.props
-        return <div {...rest}><table>
-            <thead>
-            <tr>{Object.keys(this.props.columns).map(col => {
-                return <HeaderTemplate key={col} column={col} columns={this.props.columns} list={this.props.list}/>
-            })}</tr>
-            </thead>
-            <tbody>
-            {this.renderBody(this.props.list,'')}
-            </tbody>
-        </table></div>
-    }
-
-    renderBody(list,key) {
-        const {ItemTemplate, HeaderTemplate, ...rest} = this.props
-        return list.map((row,i)=>{
-            return <tr key={i+"-"+key}>
-                {
-                    Object.keys(this.props.columns).map(col => {
-                        return <ItemTemplate key={col} row={row}
-                                             column={col}
-                                             onSelect={this.props.onSelect}
-                                             selected={row===this.props.selected}
-                        />
-                    })
-                }
-            </tr>
-        })
-    }
-}
-
 const SongTableItemTemplate = (props) => {
     let val = props.row[props.column]
     if(props.column === 'artist') {
         val = STORE.getArtistById(val).name
     }
     return <td className={props.selected?"selected":""}
-               onClick={()=>props.onSelect(props.row)}>{val}</td>
+               onClick={(e)=>props.onSelect(props.row,e)}>{val}</td>
 }
 
 const SongTableHeaderTemplate = (props) => {

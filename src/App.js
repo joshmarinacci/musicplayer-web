@@ -6,6 +6,7 @@ import {Dialog, DialogContainer, DialogManager} from "appy-comps"
 import MetadataEditorDialog from './MetadataEditorDialog'
 import SelectionTable from './SelectionTable'
 import DeleteDialog from './DeleteDialog'
+import AlbumEditorDialog from './AlbumEditorDialog'
 
 const STORE = new MusicStore()
 
@@ -160,7 +161,7 @@ class App extends Component {
                 <header>results</header>
                 <SelectionTable id="results"
                                 ItemTemplate={SongTableItemTemplate}
-                                columns={{'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album'}}
+                                columns={{'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}}
                                 list={this.state.results}
                                 onSelect={this.songSelected}
                                 isSelected={this.isSelected}
@@ -197,11 +198,13 @@ class App extends Component {
             {this.state.playing?'playing':'paused'}
             <button onClick={this.editSelection}>Edit</button>
             <button onClick={this.deleteSelection}>Delete</button>
+            <button onClick={this.editSelectedAlbum}>edit album</button>
         </div>
     }
 
     editSelection = () =>  DialogManager.show(<MetadataEditorDialog store={STORE}/>)
     deleteSelection = () => DialogManager.show(<DeleteDialog store={STORE} onComplete={this.refreshSongs}/>)
+    editSelectedAlbum = () =>  DialogManager.show(<AlbumEditorDialog store={STORE} album={this.state.selectedQuery2} onComplete={this.refreshAlbums}/>)
 }
 
 function toTime(dur){
@@ -239,6 +242,9 @@ const SongTableItemTemplate = (props) => {
     }
     if(props.column === 'album') {
         val = STORE.getAlbumById(val).name
+    }
+    if(props.column === 'picture') {
+        val = props.row.picture?'yes':'no'
     }
     return <td className={props.selected?"selected":""}
                onClick={(e)=>props.onSelect(props.row,e)}>{val}</td>

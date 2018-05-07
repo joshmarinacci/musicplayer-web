@@ -1,5 +1,5 @@
-// const BASE_URL = "http://music.josh.earth/api"
-const BASE_URL = "http://localhost:19872/api"
+const BASE_URL = "http://music.josh.earth/api"
+// const BASE_URL = "http://localhost:19872/api"
 
 function GET_JSON(path) {
     return new Promise((res,rej) => {
@@ -83,6 +83,14 @@ export default class MusicStore {
     getSongURL(song) {
         return `${BASE_URL}/songs/getfile/${song._id}`
     }
+    getArtworkURL(item) {
+        if(item) {
+            const id = item.id
+            return `${BASE_URL}/artwork/${id}`
+        } else {
+            return '#'
+        }
+    }
 
     setSelection(songs) {
         this.selection = songs
@@ -109,6 +117,9 @@ export default class MusicStore {
 
     updateSongFields(song, fields) {
         return POST_JSON(`${BASE_URL}/songs/update/${song._id}`,fields)
+    }
+    updateAlbumFields(album,fields) {
+        return POST_JSON(`${BASE_URL}/albums/${album._id}/update`,fields)
     }
 
     deleteSelectedSongs() {

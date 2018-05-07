@@ -166,6 +166,7 @@ class App extends Component {
                                 onSelect={this.songSelected}
                                 isSelected={this.isSelected}
                                 HeaderTemplate={SongTableHeaderTemplate}
+                                app={this}
                 />
                 {this.renderStatusBar()}
                 <DialogContainer/>
@@ -247,7 +248,9 @@ const SongTableItemTemplate = (props) => {
         val = props.row.picture?'yes':'no'
     }
     return <td className={props.selected?"selected":""}
-               onClick={(e)=>props.onSelect(props.row,e)}>{val}</td>
+               onClick={(e)=>props.onSelect(props.row,e)}
+               onDoubleClick={()=>props.app.startSong(props.row)}
+    >{val}</td>
 }
 
 const SongTableHeaderTemplate = (props) => {

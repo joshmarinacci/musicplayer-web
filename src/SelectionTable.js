@@ -29,6 +29,7 @@ export default class SelectionTable extends Component {
                                              column={col}
                                              onSelect={this.props.onSelect}
                                              selected={this.props.isSelected(row)}
+                                             app={this.props.app}
                         />
                     })
                 }

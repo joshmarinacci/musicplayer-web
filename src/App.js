@@ -204,12 +204,26 @@ class App extends Component {
             <button onClick={this.editSelection}>Edit</button>
             <button onClick={this.deleteSelection}>Delete</button>
             <button onClick={this.editSelectedAlbum}>edit album</button>
+            <button onClick={this.deleteSelectedAlbum}>Delete Album</button>
+            <button onClick={this.deleteSelectedArtist}>Delete Artist</button>
         </div>
     }
 
     editSelection = () =>  DialogManager.show(<MetadataEditorDialog store={STORE}/>)
     deleteSelection = () => DialogManager.show(<DeleteDialog store={STORE} onComplete={this.refreshSongs}/>)
     editSelectedAlbum = () =>  DialogManager.show(<AlbumEditorDialog store={STORE} album={this.state.selectedQuery2} onComplete={this.refreshAlbums}/>)
+    deleteSelectedArtist = () => {
+        const artistId = this.state.selectedQuery
+        STORE.getAlbums(artistId).then(albums=>{
+            if(albums.length === 0) STORE.deleteArtistById(artistId)
+        })
+    }
+    deleteSelectedAlbum = () => {
+        const albumId = this.state.selectedQuery2
+        STORE.getSongsForAlbum(albumId).then(songs=>{
+            if(songs.length === 0) STORE.deleteAlbumById(albumId)
+        })
+    }
 }
 
 function toTime(dur){

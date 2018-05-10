@@ -65,10 +65,12 @@ export default class MusicStore {
             return albums
         })
     }
+    deleteArtistById = (artist) => POST_JSON(`${BASE_URL}/artists/${artist._id}/delete`)
     getSongsForAlbumForArtist(artist,album) {
         return GET_JSON(BASE_URL+'/artists/'+artist._id+"/albums/"+album._id+'/songs')
     }
     getSongsForAlbum = (album) => GET_JSON(BASE_URL+'/albums/'+album._id+'/songs')
+    deleteAlbumById = (album) => POST_JSON(`${BASE_URL}/albums/${album._id}/delete`)
     getAllSongs = () => GET_JSON(BASE_URL+'/songs/')
 
     getArtistById(id) {
@@ -123,6 +125,29 @@ export default class MusicStore {
     }
     updateAlbumFields(album,fields) {
         return POST_JSON(`${BASE_URL}/albums/${album._id}/update`,fields)
+    }
+
+    findArtistById(id) {
+        return this.artists_map[id]
+    }
+    findArtistByName(name) {
+        const artist = Object.keys(this.artists_map).find(id => {
+            const artist = this.artists_map[id]
+            if(artist.name === name) return true
+            return false
+        })
+        return artist
+    }
+    findAlbumById(id) {
+        return this.albums_map[id]
+    }
+    findAlbumByName(name) {
+        const album = Object.keys(this.albums_map).find(id => {
+            const album = this.albums_map[id]
+            if(album.name === name) return true
+            return false
+        })
+        return album
     }
 
     deleteSelectedSongs() {

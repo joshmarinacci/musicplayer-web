@@ -86,7 +86,7 @@ export default class MusicStore {
     getArtworkURL(item) {
         if(item) {
             const id = item.id
-            return `${BASE_URL}/artwork/${id}`
+            return `${BASE_URL}/artwork/${id}/${item.format.replace('/','-')}`
         } else {
             return '#'
         }
@@ -109,6 +109,9 @@ export default class MusicStore {
     }
     replaceSelection(arr) {
         this.selection = arr
+    }
+    removeFromSelection(song) {
+        this.selection = this.selection.filter((s)=>s._id!==song._id)
     }
     getSelection() {
         return this.selection

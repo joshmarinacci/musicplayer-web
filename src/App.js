@@ -68,7 +68,11 @@ class App extends Component {
     }
     songSelected = (item,e) => {
         if (e.shiftKey) {
-            STORE.addToSelection(item)
+            if(STORE.isSelected(item)) {
+                STORE.removeFromSelection(item)
+            } else {
+                STORE.addToSelection(item)
+            }
         } else {
             STORE.replaceSelection([item])
         }

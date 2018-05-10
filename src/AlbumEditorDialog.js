@@ -5,17 +5,19 @@ export default class AlbumEditorDialog extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            picture:null
+            picture:null,
+            name:props.album.name
         }
 
         if(this.props.album.picture) {
             this.state.picture = this.props.album.picture
         }
     }
+    editedName = (e) => this.setState({name:e.target.value})
     render() {
         const album = this.props.album
         return <Dialog visible={true}>
-            <h3>editing album {album.name}</h3>
+            <h3>editing album <input type="text" value={this.state.name} onChange={this.editedName}/></h3>
             <div>
                 <img style={{
                     maxWidth: '300px',
@@ -26,19 +28,27 @@ export default class AlbumEditorDialog extends Component {
                 </div>
             </div>
             <button onClick={this.cancel}>cancel</button>
-            <button onClick={this.okay} disabled={!this.changedArtwork()}>save changes</button>
+            <button onClick={this.okay} disabled={this.nothingChanged()}>save changes</button>
         </Dialog>
     }
 
     changedArtwork = ()=> {
         return this.state.picture !== this.props.album.picture
     }
+    changedName = () => {
+        return this.state.name !== this.props.album.name
+    }
+
+    nothingChanged = () => !this.changedArtwork() && !this.changedName()
 
     cancel = () => DialogManager.hide()
 
     okay = () => {
         DialogManager.hide()
-        this.props.store.updateAlbumFields(this.props.album,{picture:this.state.picture}).then(this.props.onComplete)
+        this.props.store.updateAlbumFields(this.props.album,
+            {picture:this.state.picture,
+                name:this.state.name
+            }).then(this.props.onComplete)
     }
 
     fetchSongsArtwork = () => {

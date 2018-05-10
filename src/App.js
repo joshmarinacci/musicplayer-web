@@ -245,13 +245,13 @@ class SelectionListView extends Component {
     keyDown = (e) => {
         e.preventDefault()
         const index = this.props.list.indexOf(this.props.selected)
-        if(e.keyCode === 40) {
-            if (index >= 0 && index < this.props.list.length - 2) {
+        if(e.keyCode === 40) { // down arrow
+            if (index >= 0 && index < this.props.list.length - 1) {
                 const newItem = this.props.list[index+1]
                 this.props.onSelect(newItem)
             }
         }
-        if(e.keyCode === 38) {
+        if(e.keyCode === 38) { // up arrow
             if(index > 0) {
                 const newItem = this.props.list[index-1]
                 this.props.onSelect(newItem)

@@ -228,9 +228,26 @@ const QueryTemplate = (props) => {
 }
 
 class SelectionListView extends Component {
+    keyDown = (e) => {
+        e.preventDefault()
+        const index = this.props.list.indexOf(this.props.selected)
+        if(e.keyCode === 40) {
+            if (index >= 0 && index < this.props.list.length - 2) {
+                const newItem = this.props.list[index+1]
+                this.props.onSelect(newItem)
+            }
+        }
+        if(e.keyCode === 38) {
+            if(index > 0) {
+                const newItem = this.props.list[index-1]
+                this.props.onSelect(newItem)
+            }
+        }
+
+    }
     render() {
         const Template = this.props.template
-        return <ul className="selection-list-view">
+        return <ul className="selection-list-view" onKeyDown={this.keyDown} tabIndex={0}>
             {this.props.list.map((item,i)=>{
                 return <Template key={i} item={item}
                                  onSelect={this.props.onSelect}

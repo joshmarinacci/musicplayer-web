@@ -52,6 +52,7 @@ header {
 
 .selection-list-view li {
     padding: 0.25em 0.5em;
+    user-select: none;
 }
 
 .query {

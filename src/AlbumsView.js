@@ -36,10 +36,13 @@ export default class AlbumsView extends Component {
         return <div className="two-column" style={{ gridColumn:'panel', gridRow:'header/status'}}>
             <header style={{gridColumn:'col1',gridRow:'header'}}>query</header>
             <SelectionListView id='query'
-                               template={QueryTemplate}
+                               makeTemplate={(item,i) => <QueryTemplate
+                                   key={i}
+                                   selected={item === this.state.selectedQuery}
+                                   item={item}
+                                   onSelect={this.queryItemSelected}
+                               />}
                                list={this.state.query}
-                               onSelect={this.queryItemSelected}
-                               selected={this.state.selectedQuery}
                                style={{ gridColumn:'col1', gridRow:'content'}}
             />
             <SelectionTable id="results"
@@ -65,7 +68,10 @@ export default class AlbumsView extends Component {
 }
 
 const QueryTemplate = (props) => {
-    return <li className={props.selected?"selected":""} onClick={()=>props.onSelect(props.item)}>{props.item.name}</li>
+    return <li className={props.selected?"selected":""}
+               onClick={()=>props.onSelect(props.item)}
+               onContextMenu={(e)=>props.onContextMenu(e)}
+    >{props.item.name}</li>
 }
 const SongTableItemTemplate = (props) => {
     const STORE = props.store

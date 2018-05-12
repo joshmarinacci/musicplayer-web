@@ -20,9 +20,11 @@ export default class SelectionListView extends Component {
     }
     render() {
         const Template = this.props.template
+        const makeTemplate = this.props.makeTemplate
         const style = this.props.style || {}
         return <ul className="selection-list-view" onKeyDown={this.keyDown} tabIndex={0} style={style}>
             {this.props.list.map((item,i)=>{
+                if(makeTemplate) return makeTemplate(item,i)
                 return <Template key={i} item={item}
                                  onSelect={this.props.onSelect}
                                  selected={item===this.props.selected}/>

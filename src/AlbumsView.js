@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
+import {PopupManager, DialogManager} from "appy-comps"
 import SelectionListView from './SelectionListView'
 import SelectionTable from './SelectionTable'
+import AlbumEditorDialog from './AlbumEditorDialog'
 
 export default class AlbumsView extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            query:[],
-            results:[],
-            selectedQuery:null,
+            albums:[],
+            songs:[],
+            selectedAlbum:null,
         }
-        this.props.store.getAllAlbums().then(albums => this.setState({query:albums}))
+        this.props.store.getAllAlbums().then(albums => this.setState({albums:albums}))
     }
-    queryItemSelected = (item) => {
-        this.setState({selectedQuery:item})
-        this.props.store.getSongsForAlbum(item).then((songs)=>{
-            this.setState({results:songs})
+    albumSelected = (album) => {
+        this.setState({selectedAlbum:album})
+        this.props.store.getSongsForAlbum(album).then((songs)=>{
+            this.setState({songs:songs})
         })
     }
     songSelected = (item,e) => {
@@ -31,36 +33,47 @@ export default class AlbumsView extends Component {
         }
         this.setState({selectedSongs:STORE.getSelection()})
     }
-    isSelected = (item) => this.props.store.isSelected(item)
+    isSelected = (song) => this.props.store.isSelected(song)
+    onAlbumContextMenu = (e) => {
+        e.preventDefault()
+        PopupManager.show(<ul><li><button onClick={this.editAlbum}>edit</button></li></ul>,e.target)
+    }
+    editAlbum = () => {
+        PopupManager.hide()
+        DialogManager.show(<AlbumEditorDialog store={this.props.store} album={this.state.selectedAlbum} onComplete={this.refreshAlbums}/>)
+    }
+    renderAlbumItem = (album,i) => <QueryTemplate
+        key={i}
+        selected={album === this.state.selectedAlbum}
+        item={album}
+        onSelect={this.albumSelected}
+        onContextMenu={this.onAlbumContextMenu}
+    />
+
+    renderSongItem = (key, row, col) => <SongTableItemTemplate
+        key={key}
+        store={this.props.store}
+        column={col}
+        row={row}
+        onSelect={this.songSelected}
+        app={this.props.app}
+        selected={this.isSelected(row)}
+    />
+
     render() {
+        const columns = {'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}
         return <div className="two-column" style={{ gridColumn:'panel', gridRow:'header/status'}}>
             <header style={{gridColumn:'col1',gridRow:'header'}}>query</header>
             <SelectionListView id='query'
-                               makeTemplate={(item,i) => <QueryTemplate
-                                   key={i}
-                                   selected={item === this.state.selectedQuery}
-                                   item={item}
-                                   onSelect={this.queryItemSelected}
-                               />}
-                               list={this.state.query}
+                               makeTemplate={this.renderAlbumItem}
+                               list={this.state.albums}
                                style={{ gridColumn:'col1', gridRow:'content'}}
             />
             <SelectionTable id="results"
-                            makeItemTemplate={(key,row,col)=><SongTableItemTemplate
-                                key={key}
-                                store={this.props.store}
-                                column={col}
-                                row={row}
-                                onSelect={this.songSelected}
-                                app={this.props.app}
-                                selected={this.isSelected(row)}
-                            />}
-                            columns={{'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}}
-                            list={this.state.results}
-                            // onSelect={this.songSelected}
-                            // isSelected={this.isSelected}
+                            makeItemTemplate={this.renderSongItem}
+                            columns={columns}
+                            list={this.state.songs}
                             HeaderTemplate={SongTableHeaderTemplate}
-                            // app={this}
                             style={{gridColumn:'col2', gridRow:'header/bottom'}}
             />
         </div>

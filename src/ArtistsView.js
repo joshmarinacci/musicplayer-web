@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import SelectionListView from './SelectionListView'
 import SelectionTable from './SelectionTable'
+import {DialogManager, PopupManager} from 'appy-comps'
+import AlbumEditorDialog from './AlbumEditorDialog'
 
 export default class ArtistsView extends Component {
     constructor(props) {
@@ -44,6 +46,23 @@ export default class ArtistsView extends Component {
     }
     isSelected = (item) => this.props.store.isSelected(item)
 
+    onAlbumContextMenu = (e) => {
+        e.preventDefault()
+        PopupManager.show(<ul><li><button onClick={this.editAlbum}>edit</button></li></ul>,e.target)
+    }
+    editAlbum = () => {
+        PopupManager.hide()
+        DialogManager.show(<AlbumEditorDialog store={this.props.store} album={this.state.selectedQuery2} onComplete={this.refreshAlbums}/>)
+    }
+    renderAlbumItem = (album,i) => {
+        return <QueryTemplate
+            key={i}
+            selected={album === this.state.selectedQuery2}
+            item={album}
+            onSelect={this.queryItemSelected2}
+            onContextMenu={this.onAlbumContextMenu}
+        />
+    }
     render() {
         return <div className="three-column" style={{ gridColumn:'panel', gridRow:'header/status'}}>
             <header style={{gridColumn:'col1',gridRow:'header'}}>query</header>
@@ -56,10 +75,8 @@ export default class ArtistsView extends Component {
             />
             <header style={{gridColumn:'col2',gridRow:'header'}}>query</header>
             <SelectionListView id='query2'
-                               template={QueryTemplate}
+                               makeTemplate={this.renderAlbumItem}
                                list={this.state.query2}
-                               onSelect={this.queryItemSelected2}
-                               selected={this.state.selectedQuery2}
                                style={{ gridColumn:'col2', gridRow:'content'}}
             />
             <SelectionTable id="results"
@@ -84,7 +101,10 @@ export default class ArtistsView extends Component {
 
 
 const QueryTemplate = (props) => {
-    return <li className={props.selected?"selected":""} onClick={()=>props.onSelect(props.item)}>{props.item.name}</li>
+    return <li className={props.selected?"selected":""}
+               onClick={()=>props.onSelect(props.item)}
+               onContextMenu={(e)=>props.onContextMenu(e)}
+    >{props.item.name}</li>
 }
 
 const SongTableItemTemplate = (props) => {

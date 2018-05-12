@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import 'font-awesome/css/font-awesome.min.css'
 import MusicStore from './MusicStore'
-import {Dialog, DialogContainer, DialogManager} from "appy-comps"
+import {Dialog, DialogContainer, DialogManager, PopupContainer} from "appy-comps"
 import MetadataEditorDialog from './MetadataEditorDialog'
 import SelectionTable from './SelectionTable'
 import DeleteDialog from './DeleteDialog'
@@ -118,6 +118,7 @@ class App extends Component {
                 {this.renderSelectedView(this.state.selectedSource)}
                 {this.renderStatusBar()}
                 <DialogContainer/>
+                <PopupContainer/>
             </div>
         );
     }
@@ -155,7 +156,6 @@ class App extends Component {
 
     editSelection = () =>  DialogManager.show(<MetadataEditorDialog store={STORE}/>)
     deleteSelection = () => DialogManager.show(<DeleteDialog store={STORE} onComplete={this.refreshSongs}/>)
-    editSelectedAlbum = () =>  DialogManager.show(<AlbumEditorDialog store={STORE} album={this.state.selectedQuery2} onComplete={this.refreshAlbums}/>)
     deleteSelectedArtist = () => {
         const artistId = this.state.selectedQuery
         STORE.getAlbums(artistId).then(albums=>{

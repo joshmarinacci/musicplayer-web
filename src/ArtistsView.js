@@ -14,9 +14,7 @@ export default class ArtistsView extends Component {
             selectedSongs:[],
         }
 
-        this.props.store.getArtists().then((artists)=>{
-            this.setState({query:artists})
-        })
+        this.props.store.getArtists().then(artists => this.setState({query:artists}))
     }
 
     queryItemSelected = (item) => {
@@ -65,7 +63,15 @@ export default class ArtistsView extends Component {
                                style={{ gridColumn:'col2', gridRow:'content'}}
             />
             <SelectionTable id="results"
-                            makeItemTemplate={(key,row,col)=><SongTableItemTemplate key={key} store={this.props.store} column={col} row={row} onSelect={this.songSelected} app={this.props.app} selected={this.isSelected(row)}/>}
+                            makeItemTemplate={(key,row,col)=><SongTableItemTemplate
+                                key={key}
+                                store={this.props.store}
+                                column={col}
+                                row={row}
+                                onSelect={this.songSelected}
+                                app={this.props.app}
+                                selected={this.isSelected(row)}
+                            />}
                             columns={{'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}}
                             list={this.state.results}
                             // isSelected={this.isSelected}

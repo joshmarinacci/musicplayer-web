@@ -7,33 +7,58 @@ export default class AlbumsView extends Component {
         super(props)
         this.state = {
             query:[],
+            results:[],
             selectedQuery:null,
         }
+        this.props.store.getAllAlbums().then(albums => this.setState({query:albums}))
     }
     queryItemSelected = (item) => {
         this.setState({selectedQuery:item})
-        this.props.store.getAlbums(item).then((albums)=>{
-            this.setState({query2:albums})
+        this.props.store.getSongsForAlbum(item).then((songs)=>{
+            this.setState({results:songs})
         })
     }
+    songSelected = (item,e) => {
+        const STORE = this.props.store
+        if (e.shiftKey) {
+            if(STORE.isSelected(item)) {
+                STORE.removeFromSelection(item)
+            } else {
+                STORE.addToSelection(item)
+            }
+        } else {
+            STORE.replaceSelection([item])
+        }
+        this.setState({selectedSongs:STORE.getSelection()})
+    }
+    isSelected = (item) => this.props.store.isSelected(item)
     render() {
-        return <div className="two-column">
-            <header>Albums</header>
+        return <div className="two-column" style={{ gridColumn:'panel', gridRow:'header/status'}}>
+            <header style={{gridColumn:'col1',gridRow:'header'}}>query</header>
             <SelectionListView id='query'
                                template={QueryTemplate}
                                list={this.state.query}
                                onSelect={this.queryItemSelected}
                                selected={this.state.selectedQuery}
+                               style={{ gridColumn:'col1', gridRow:'content'}}
             />
-            <header>results</header>
             <SelectionTable id="results"
-                            ItemTemplate={SongTableItemTemplate}
+                            makeItemTemplate={(key,row,col)=><SongTableItemTemplate
+                                key={key}
+                                store={this.props.store}
+                                column={col}
+                                row={row}
+                                onSelect={this.songSelected}
+                                app={this.props.app}
+                                selected={this.isSelected(row)}
+                            />}
                             columns={{'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}}
                             list={this.state.results}
-                            onSelect={this.songSelected}
-                            isSelected={this.isSelected}
+                            // onSelect={this.songSelected}
+                            // isSelected={this.isSelected}
                             HeaderTemplate={SongTableHeaderTemplate}
-                            app={this}
+                            // app={this}
+                            style={{gridColumn:'col2', gridRow:'header/bottom'}}
             />
         </div>
     }
@@ -46,10 +71,14 @@ const SongTableItemTemplate = (props) => {
     const STORE = props.store
     let val = props.row[props.column]
     if(props.column === 'artist') {
-        val = STORE.getArtistById(val).name
+        const artist = STORE.getArtistById(val)
+        if(artist) val = artist.name
+        // val = STORE.getArtistById(val).name
     }
     if(props.column === 'album') {
-        val = STORE.getAlbumById(val).name
+        const album = STORE.getAlbumById(val)
+        if(album) val = album.name
+        // val = STORE.getAlbumById(val).name
     }
     if(props.column === 'picture') {
         val = props.row.picture?'yes':'no'

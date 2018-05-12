@@ -171,7 +171,7 @@ class App extends Component {
 
     renderSelectedView(source) {
         if(source === 'artists') return <ArtistsView store={STORE} app={this}/>
-        if(source === 'albums') return <AlbumsView store={STORE}/>
+        if(source === 'albums') return <AlbumsView store={STORE} app={this}/>
         // if(source === 'songs') return <SongsView/>
         // if(source === 'maint') return <MaintView/>
         return <div style={{

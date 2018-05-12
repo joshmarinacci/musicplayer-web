@@ -44,7 +44,7 @@ class App extends Component {
         }
     }
     refreshSongs = () => {
-        STORE.getSongsForAlbumForArtist(this.state.selectedQuery,this.state.selectedQuery2)
+        STORE.getSongsForAlbumForArtist(this.state.selectedArtist,this.state.selectedAlbum)
             .then(songs => this.setState({results:songs}) )
     }
     togglePlaying = () => {
@@ -148,7 +148,6 @@ class App extends Component {
             {this.state.playing?'playing':'paused'}
             <button onClick={this.editSelection}>Edit</button>
             <button onClick={this.deleteSelection}>Delete</button>
-            <button onClick={this.editSelectedAlbum}>edit album</button>
             <button onClick={this.deleteSelectedAlbum}>Delete Album</button>
             <button onClick={this.deleteSelectedArtist}>Delete Artist</button>
         </div>
@@ -157,13 +156,13 @@ class App extends Component {
     editSelection = () =>  DialogManager.show(<MetadataEditorDialog store={STORE}/>)
     deleteSelection = () => DialogManager.show(<DeleteDialog store={STORE} onComplete={this.refreshSongs}/>)
     deleteSelectedArtist = () => {
-        const artistId = this.state.selectedQuery
+        const artistId = this.state.selectedArtist
         STORE.getAlbums(artistId).then(albums=>{
             if(albums.length === 0) STORE.deleteArtistById(artistId)
         })
     }
     deleteSelectedAlbum = () => {
-        const albumId = this.state.selectedQuery2
+        const albumId = this.state.selectedAlbum
         STORE.getSongsForAlbum(albumId).then(songs=>{
             if(songs.length === 0) STORE.deleteAlbumById(albumId)
         })

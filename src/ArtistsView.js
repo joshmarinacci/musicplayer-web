@@ -11,25 +11,20 @@ export default class ArtistsView extends Component {
             query:[],
             query2:[],
             results:[],
-            selectedQuery:null,
-            selectedQuery2:null,
+            selectedArtist:null,
+            selectedAlbum:null,
             selectedSongs:[],
         }
-
         this.props.store.getArtists().then(artists => this.setState({query:artists}))
     }
 
-    queryItemSelected = (item) => {
-        this.setState({selectedQuery:item})
-        this.props.store.getAlbums(item).then((albums)=>{
-            this.setState({query2:albums})
-        })
+    artistSelected = (artist) => {
+        this.setState({selectedArtist:artist})
+        this.props.store.getAlbums(artist).then((albums)=>this.setState({query2:albums}))
     }
-    queryItemSelected2 = (item) => {
-        this.setState({selectedQuery2:item})
-        this.props.store.getSongsForAlbum(item).then((songs)=>{
-            this.setState({results:songs})
-        })
+    albumSelected = (album) => {
+        this.setState({selectedAlbum:album})
+        this.props.store.getSongsForAlbum(album).then((songs)=>this.setState({results:songs}))
     }
     songSelected = (item,e) => {
         const STORE = this.props.store
@@ -52,14 +47,14 @@ export default class ArtistsView extends Component {
     }
     editAlbum = () => {
         PopupManager.hide()
-        DialogManager.show(<AlbumEditorDialog store={this.props.store} album={this.state.selectedQuery2} onComplete={this.refreshAlbums}/>)
+        DialogManager.show(<AlbumEditorDialog store={this.props.store} album={this.state.selectedAlbum} onComplete={this.refreshAlbums}/>)
     }
     renderAlbumItem = (album,i) => {
         return <QueryTemplate
             key={i}
-            selected={album === this.state.selectedQuery2}
+            selected={album === this.state.selectedAlbum}
             item={album}
-            onSelect={this.queryItemSelected2}
+            onSelect={this.albumSelected}
             onContextMenu={this.onAlbumContextMenu}
         />
     }
@@ -69,8 +64,8 @@ export default class ArtistsView extends Component {
             <SelectionListView id='query'
                                template={QueryTemplate}
                                list={this.state.query}
-                               onSelect={this.queryItemSelected}
-                               selected={this.state.selectedQuery}
+                               onSelect={this.artistSelected}
+                               selected={this.state.selectedArtist}
                                style={{ gridColumn:'col1', gridRow:'content'}}
             />
             <header style={{gridColumn:'col2',gridRow:'header'}}>query</header>

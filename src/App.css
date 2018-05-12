@@ -3,12 +3,18 @@
     height: 100vh;
     border: 0px solid red;
     display: grid;
-    grid-template-columns: [sources] 8em [query] 8em [query2]8em [results] 1fr [right];
+    grid-template-columns: [sources] 8em [panel] 1fr [right];
     grid-template-rows: [toolbar] 5em [header]1.5em [content] 1fr [status] 2em [bottom];
     background-color: #333;
     grid-gap: 1px;
 }
 
+.three-column {
+    display: grid;
+    border: 1px solid red;
+    grid-template-columns: [col1] 8em [col2] 8em [col3] 1fr [right];
+    grid-template-rows: [header]1.5em [content]1fr [bottom];
+}
 
 .toolbar {
     grid-row: toolbar;
@@ -120,3 +126,5 @@ th {
 .form-horizontal input, span {
     grid-column: editor;
 }
+
+

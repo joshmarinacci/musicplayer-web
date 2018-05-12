@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 
 export default class SelectionTable extends Component {
     render() {
-        const {ItemTemplate, HeaderTemplate, ...rest} = this.props
+        const {ItemTemplate, HeaderTemplate, makeItemTemplate, list, columns, ...rest} = this.props
         return <div {...rest}><table>
             {this.renderHeader()}
             <tbody>
@@ -25,12 +25,13 @@ export default class SelectionTable extends Component {
             return <tr key={i+"-"+key}>
                 {
                     Object.keys(this.props.columns).map(col => {
-                        return <ItemTemplate key={col} row={row}
-                                             column={col}
-                                             onSelect={this.props.onSelect}
-                                             selected={this.props.isSelected(row)}
-                                             app={this.props.app}
-                        />
+                        return this.props.makeItemTemplate(col,row,col)
+                        // return <ItemTemplate key={col} row={row}
+                        //                      column={col}
+                        //                      onSelect={this.props.onSelect}
+                        //                      selected={this.props.isSelected(row)}
+                        //                      app={this.props.app}
+                        // />
                     })
                 }
             </tr>

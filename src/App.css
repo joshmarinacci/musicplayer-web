@@ -11,16 +11,18 @@
 
 .three-column {
     display: grid;
-    border: 1px solid red;
     grid-template-columns: [col1] 8em [col2] 8em [col3] 1fr [right];
     grid-template-rows: [header]1.5em [content]1fr [bottom];
+    background-color: #333;
+    grid-gap: 1px;
 }
 
 .two-column {
     display: grid;
-    border: 1px solid red;
     grid-template-columns: [col1] 8em [col2] 1fr [right];
     grid-template-rows: [header]1.5em [content]1fr [bottom];
+    background-color: #333;
+    grid-gap: 1px;
 }
 
 .toolbar {

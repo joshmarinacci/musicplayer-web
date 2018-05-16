@@ -63,10 +63,12 @@ export default class AlbumsView extends Component {
     render() {
         const columns = {'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}
         return <div className="two-column" style={{ gridColumn:'panel', gridRow:'header/status'}}>
-            <header style={{gridColumn:'col1',gridRow:'header'}}>query</header>
+            <header style={{gridColumn:'col1',gridRow:'header'}}>Albums</header>
             <SelectionListView id='query'
                                makeTemplate={this.renderAlbumItem}
+                               selected={this.state.selectedAlbum}
                                list={this.state.albums}
+                               onSelect={this.albumSelected}
                                style={{ gridColumn:'col1', gridRow:'content'}}
             />
             <SelectionTable id="results"

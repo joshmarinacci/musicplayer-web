@@ -15,6 +15,7 @@ export default class ArtistsView extends Component {
             selectedAlbum:null,
             selectedSongs:[],
         }
+        this.columns = {'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}
         this.props.store.getArtists().then(artists => this.setState({query:artists}))
     }
 
@@ -58,9 +59,20 @@ export default class ArtistsView extends Component {
             onContextMenu={this.onAlbumContextMenu}
         />
     }
+    renderSongItem = (key,row,col) => {
+        return <SongTableItemTemplate
+            key={key}
+            store={this.props.store}
+            column={col}
+            row={row}
+            onSelect={this.songSelected}
+            app={this.props.app}
+            selected={this.isSelected(row)}
+        />
+    }
     render() {
         return <div className="three-column" style={{ gridColumn:'panel', gridRow:'header/status'}}>
-            <header style={{gridColumn:'col1',gridRow:'header'}}>query</header>
+            <header style={{gridColumn:'col1',gridRow:'header'}}>Artists</header>
             <SelectionListView id='query'
                                template={QueryTemplate}
                                list={this.state.query}
@@ -68,25 +80,16 @@ export default class ArtistsView extends Component {
                                selected={this.state.selectedArtist}
                                style={{ gridColumn:'col1', gridRow:'content'}}
             />
-            <header style={{gridColumn:'col2',gridRow:'header'}}>query</header>
+            <header style={{gridColumn:'col2',gridRow:'header'}}>Albums</header>
             <SelectionListView id='query2'
                                makeTemplate={this.renderAlbumItem}
                                list={this.state.query2}
                                style={{ gridColumn:'col2', gridRow:'content'}}
             />
             <SelectionTable id="results"
-                            makeItemTemplate={(key,row,col)=><SongTableItemTemplate
-                                key={key}
-                                store={this.props.store}
-                                column={col}
-                                row={row}
-                                onSelect={this.songSelected}
-                                app={this.props.app}
-                                selected={this.isSelected(row)}
-                            />}
-                            columns={{'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}}
+                            makeItemTemplate={this.renderSongItem}
+                            columns={this.columns}
                             list={this.state.results}
-                            // isSelected={this.isSelected}
                             HeaderTemplate={SongTableHeaderTemplate}
                             style={{gridColumn:'col3', gridRow:'header/bottom'}}
             />

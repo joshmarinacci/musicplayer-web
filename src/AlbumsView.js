@@ -3,6 +3,7 @@ import {PopupManager, DialogManager} from "appy-comps"
 import SelectionListView from './SelectionListView'
 import SelectionTable from './SelectionTable'
 import AlbumEditorDialog from './AlbumEditorDialog'
+import PopupMenu from './components/PopupMenu'
 
 export default class AlbumsView extends Component {
     constructor(props) {
@@ -36,7 +37,13 @@ export default class AlbumsView extends Component {
     isSelected = (song) => this.props.store.isSelected(song)
     onAlbumContextMenu = (e) => {
         e.preventDefault()
-        PopupManager.show(<ul><li><button onClick={this.editAlbum}>edit</button></li></ul>,e.target)
+        const actions = [
+            {
+                title:'edit',
+                onClick: this.editAlbum
+            }
+        ]
+        PopupManager.show(<PopupMenu list={actions}/>,e.target)
     }
     editAlbum = () => {
         PopupManager.hide()
@@ -94,12 +101,10 @@ const SongTableItemTemplate = (props) => {
     if(props.column === 'artist') {
         const artist = STORE.getArtistById(val)
         if(artist) val = artist.name
-        // val = STORE.getArtistById(val).name
     }
     if(props.column === 'album') {
         const album = STORE.getAlbumById(val)
         if(album) val = album.name
-        // val = STORE.getAlbumById(val).name
     }
     if(props.column === 'picture') {
         val = props.row.picture?'yes':'no'

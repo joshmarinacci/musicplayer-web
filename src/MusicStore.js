@@ -135,6 +135,14 @@ export default class MusicStore {
 
     uploadArtwork = file => POST_JSON_FILE(`${BASE_URL}/artwork/upload/${file.name}`,file)
 
+    refreshAlbumById = (id) => {
+        GET_JSON(`${BASE_URL}/albums/${id}/info`).then((msg)=>{
+            const album = msg[0]
+            this.albums_map[album._id] = album
+            return this.albums_map[album._id]
+        })
+    }
+
     findArtistById = (id) => this.artists_map[id]
 
     findArtistByName = (name) => Object.keys(this.artists_map)

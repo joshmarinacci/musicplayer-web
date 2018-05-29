@@ -1,5 +1,5 @@
-// const BASE_URL = "http://music.josh.earth/api"
-const BASE_URL = "http://localhost:19872/api"
+const BASE_URL = "http://music.josh.earth/api"
+// const BASE_URL = "http://localhost:19872/api"
 
 function GET_JSON(path) {
     return new Promise((res,rej) => {
@@ -97,14 +97,6 @@ export default class MusicStore {
     }
 
     getSongURL = (song) => `${BASE_URL}/songs/getfile/${song._id}`
-
-    getArtworkURL = (item) => {
-        if(item && item.format) {
-            return `${BASE_URL}/artwork/${item.id}/${item.format.replace('/','-')}`
-        } else {
-            return '#'
-        }
-    }
 
     getArtworkURLForAlbum = (album) => {
         if(album && album.artwork) return `${BASE_URL}/artwork/${album.artwork}`

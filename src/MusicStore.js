@@ -123,15 +123,24 @@ export default class MusicStore {
 
     updateSongFields = (song, fields) => POST_JSON(`${BASE_URL}/songs/update/${song._id}`,fields)
 
-    updateAlbumFields = (album,fields) => POST_JSON(`${BASE_URL}/albums/${album._id}/update`,fields)
+    updateAlbumFields  = (album,fields)  => POST_JSON(`${BASE_URL}/albums/${album._id}/update`,fields)
+    updateArtistFields = (artist,fields) => POST_JSON(`${BASE_URL}/artists/${artist._id}/update`,fields)
 
     uploadArtwork = file => POST_JSON_FILE(`${BASE_URL}/artwork/upload/${file.name}`,file)
 
     refreshAlbumById = (id) => {
-        GET_JSON(`${BASE_URL}/albums/${id}/info`).then((msg)=>{
+        return GET_JSON(`${BASE_URL}/albums/${id}/info`).then((msg)=>{
             const album = msg[0]
             this.albums_map[album._id] = album
             return this.albums_map[album._id]
+        })
+    }
+
+    refreshArtistById = (id) => {
+        return GET_JSON(`${BASE_URL}/artists/${id}/info`).then((msg)=>{
+            const artist = msg[0]
+            this.artists_map[artist._id] = artist
+            return this.artists_map[artist._id]
         })
     }
 

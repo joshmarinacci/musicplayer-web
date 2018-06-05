@@ -3,6 +3,8 @@ import SelectionListView from './SelectionListView'
 import SelectionTable from './SelectionTable'
 import {DialogManager, PopupManager} from 'appy-comps'
 import AlbumEditorDialog from './AlbumEditorDialog'
+import ArtistEditorDialog from './ArtistEditorDialog'
+import PopupMenu from './components/PopupMenu'
 
 export default class ArtistsView extends Component {
     constructor(props) {
@@ -44,11 +46,40 @@ export default class ArtistsView extends Component {
 
     onAlbumContextMenu = (e) => {
         e.preventDefault()
-        PopupManager.show(<ul><li><button onClick={this.editAlbum}>edit</button></li></ul>,e.target)
+        const actions = [
+            {
+                title:'edit',
+                onClick: this.editAlbum
+            }
+        ]
+        PopupManager.show(<PopupMenu list={actions}/>,e.target)
+    }
+    onArtistContextMenu = (e) => {
+        e.preventDefault()
+        const actions = [
+            {
+                title:'edit',
+                onClick: this.editArtist
+            }
+        ]
+        PopupManager.show(<PopupMenu list={actions}/>,e.target)
     }
     editAlbum = () => {
         PopupManager.hide()
         DialogManager.show(<AlbumEditorDialog store={this.props.store} album={this.state.selectedAlbum} onComplete={this.refreshAlbums}/>)
+    }
+    editArtist = () => {
+        PopupManager.hide()
+        DialogManager.show(<ArtistEditorDialog store={this.props.store} artist={this.state.selectedArtist} onComplete={this.refreshArtists}/>)
+    }
+    renderArtistItem = (artist,i) => {
+        return <QueryTemplate
+            key={i}
+            selected={artist === this.state.selectedArtist}
+            item={artist}
+            onSelect={this.artistSelected}
+            onContextMenu={this.onArtistContextMenu}
+            />
     }
     renderAlbumItem = (album,i) => {
         return <QueryTemplate
@@ -74,10 +105,8 @@ export default class ArtistsView extends Component {
         return <div className="three-column" style={{ gridColumn:'panel', gridRow:'header/status'}}>
             <header style={{gridColumn:'col1',gridRow:'header'}}>Artists</header>
             <SelectionListView id='query'
-                               template={QueryTemplate}
+                               makeTemplate={this.renderArtistItem}
                                list={this.state.query}
-                               onSelect={this.artistSelected}
-                               selected={this.state.selectedArtist}
                                style={{ gridColumn:'col1', gridRow:'content'}}
             />
             <header style={{gridColumn:'col2',gridRow:'header'}}>Albums</header>

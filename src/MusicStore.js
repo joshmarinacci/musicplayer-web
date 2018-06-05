@@ -58,6 +58,9 @@ function POST_JSON(path, payload) {
     });
 }
 
+const flatten = (arrs) => arrs.reduce((a,b) => a.concat(b))
+
+
 export default class MusicStore {
     constructor() {
         this.artists_map = {}
@@ -65,9 +68,8 @@ export default class MusicStore {
         this.selection = []
     }
     getArtists = () => GET_JSON(BASE_URL+'/artists').then((artists)=>{
-            artists.forEach((artist)=>{
-                this.artists_map[artist._id] = artist
-            })
+            this.artists_map = {}
+            artists.forEach(artist => this.artists_map[artist._id] = artist)
             return artists
         })
 
@@ -82,6 +84,9 @@ export default class MusicStore {
             albums.forEach(album => this.albums_map[album._id] = album)
             return albums
         })
+    getAlbumsForArtists = (artists) => {
+        return Promise.all(artists.map(art =>  this.getAlbums(art))).then(als => flatten(als))
+    }
 
     deleteArtistById = (artist) => POST_JSON(`${BASE_URL}/artists/${artist._id}/delete`)
     getSongsForAlbumForArtist = (artist,album) => GET_JSON(BASE_URL+'/artists/'+artist._id+"/albums/"+album._id+'/songs')
@@ -159,5 +164,8 @@ export default class MusicStore {
         return POST_JSON(`${BASE_URL}/songs/delete/`,ids)
     }
 
+    mergeArtists= (artists) =>
+        POST_JSON(`${BASE_URL}/artists/merge`,artists.map(art=>art._id))
+            .then(res => res.artist)
 
 }

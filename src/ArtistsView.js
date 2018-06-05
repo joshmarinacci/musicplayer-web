@@ -6,14 +6,49 @@ import AlbumEditorDialog from './AlbumEditorDialog'
 import ArtistEditorDialog from './ArtistEditorDialog'
 import PopupMenu from './components/PopupMenu'
 
+class ListSelection {
+    constructor() {
+        this.data = []
+        this.listeners = []
+    }
+    onChange(cb) {
+        this.listeners.push(cb)
+    }
+    fireChange() {
+        this.listeners.forEach(cb => cb(this))
+    }
+    add(item) {
+        this.data.push(item)
+        this.fireChange()
+    }
+    get() {
+        return this.data.slice()
+    }
+    set(item) {
+        this.data = [item]
+        this.fireChange()
+    }
+    isSelected(item) {
+        return this.data.indexOf(item) >= 0
+    }
+}
+
 export default class ArtistsView extends Component {
     constructor(props) {
         super(props)
+
+        this.artistSelection =  new ListSelection()
+        this.artistSelection.onChange((sel)=> {
+            this.setState({artists:sel})
+            this.props.store.getAlbumsForArtists(this.state.selectedArtists.data)
+                .then((albums)=>this.setState({query2:albums}))
+        })
+
         this.state = {
             query:[],
             query2:[],
             results:[],
-            selectedArtist:null,
+            selectedArtists:this.artistSelection,
             selectedAlbum:null,
             selectedSongs:[],
         }
@@ -21,9 +56,12 @@ export default class ArtistsView extends Component {
         this.props.store.getArtists().then(artists => this.setState({query:artists}))
     }
 
-    artistSelected = (artist) => {
-        this.setState({selectedArtist:artist})
-        this.props.store.getAlbums(artist).then((albums)=>this.setState({query2:albums}))
+    artistSelected = (artist, e) => {
+        if(e.shiftKey) {
+            this.artistSelection.add(artist)
+        } else {
+            this.artistSelection.set(artist)
+        }
     }
     albumSelected = (album) => {
         this.setState({selectedAlbum:album})
@@ -56,13 +94,23 @@ export default class ArtistsView extends Component {
     }
     onArtistContextMenu = (e) => {
         e.preventDefault()
-        const actions = [
-            {
-                title:'edit',
-                onClick: this.editArtist
-            }
-        ]
-        PopupManager.show(<PopupMenu list={actions}/>,e.target)
+        if(this.state.selectedArtists.data.length > 1) {
+            const actions = [
+                {
+                    title: 'merge',
+                    onClick: this.mergeArtists
+                }
+            ]
+            PopupManager.show(<PopupMenu list={actions}/>, e.target)
+        } else {
+            const actions = [
+                {
+                    title: 'edit',
+                    onClick: this.editArtist
+                }
+            ]
+            PopupManager.show(<PopupMenu list={actions}/>, e.target)
+        }
     }
     editAlbum = () => {
         PopupManager.hide()
@@ -72,10 +120,24 @@ export default class ArtistsView extends Component {
         PopupManager.hide()
         DialogManager.show(<ArtistEditorDialog store={this.props.store} artist={this.state.selectedArtist} onComplete={this.refreshArtists}/>)
     }
+    mergeArtists = () => {
+        PopupManager.hide()
+        this.props.store.mergeArtists(this.state.selectedArtists.get()).then((artist)=>{
+            this.refreshArtists().then(()=>{
+                const one = this.state.query.find(a => a._id === artist._id)
+                this.state.selectedArtists.set(one)
+            })
+        })
+    }
+
+    refreshArtists = () => {
+        return this.props.store.getArtists().then(artists => this.setState({query:artists}))
+    }
+
     renderArtistItem = (artist,i) => {
         return <QueryTemplate
             key={i}
-            selected={artist === this.state.selectedArtist}
+            selected={this.artistSelection.isSelected(artist)}
             item={artist}
             onSelect={this.artistSelected}
             onContextMenu={this.onArtistContextMenu}
@@ -129,7 +191,7 @@ export default class ArtistsView extends Component {
 
 const QueryTemplate = (props) => {
     return <li className={props.selected?"selected":""}
-               onClick={()=>props.onSelect(props.item)}
+               onClick={(e)=>props.onSelect(props.item,e)}
                onContextMenu={(e)=>props.onContextMenu(e)}
     >{props.item.name}</li>
 }

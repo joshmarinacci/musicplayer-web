@@ -87,6 +87,9 @@ export default class MusicStore {
     getAlbumsForArtists = (artists) => {
         return Promise.all(artists.map(art =>  this.getAlbums(art))).then(als => flatten(als))
     }
+    getSongsForAlbums = (albums) => {
+        return Promise.all(albums.map(al => this.getSongsForAlbum(al))).then(songs => flatten(songs))
+    }
 
     deleteArtistById = (artist) => POST_JSON(`${BASE_URL}/artists/${artist._id}/delete`)
     getSongsForAlbumForArtist = (artist,album) => GET_JSON(BASE_URL+'/artists/'+artist._id+"/albums/"+album._id+'/songs')
@@ -167,5 +170,9 @@ export default class MusicStore {
     mergeArtists= (artists) =>
         POST_JSON(`${BASE_URL}/artists/merge`,artists.map(art=>art._id))
             .then(res => res.artist)
+
+    mergeAlbums= (albums) =>
+        POST_JSON(`${BASE_URL}/albums/merge`,albums.map(al=>al._id))
+            .then(res => res.album)
 
 }

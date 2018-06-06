@@ -40,7 +40,7 @@ export default class ArtistsView extends Component {
         this.artistSelection =  new ListSelection()
         this.artistSelection.onChange((sel)=> {
             this.setState({artists:sel})
-            this.props.store.getAlbumsForArtists(this.state.selectedArtists.data)
+            this.props.store.getAlbumsForArtists(sel.data)
                 .then((albums)=>this.setState({query2:albums}))
         })
 
@@ -49,9 +49,14 @@ export default class ArtistsView extends Component {
             query2:[],
             results:[],
             selectedArtists:this.artistSelection,
-            selectedAlbum:null,
+            selectedAlbums:new ListSelection(),
             selectedSongs:[],
         }
+        this.state.selectedAlbums.onChange((sel)=>{
+            this.setState({albums:sel})
+            this.props.store.getSongsForAlbums(sel.data)
+                .then((songs)=>this.setState({results:songs}))
+        })
         this.columns = {'title':'Title', 'artist':'Artist', 'track':'Track', 'album':'Album','picture':'Has Artwork?'}
         this.props.store.getArtists().then(artists => this.setState({query:artists}))
     }
@@ -63,9 +68,12 @@ export default class ArtistsView extends Component {
             this.artistSelection.set(artist)
         }
     }
-    albumSelected = (album) => {
-        this.setState({selectedAlbum:album})
-        this.props.store.getSongsForAlbum(album).then((songs)=>this.setState({results:songs}))
+    albumSelected = (album, e) => {
+        if(e.shiftKey) {
+            this.state.selectedAlbums.add(album)
+        } else {
+            this.state.selectedAlbums.set(album)
+        }
     }
     songSelected = (item,e) => {
         const STORE = this.props.store
@@ -84,13 +92,23 @@ export default class ArtistsView extends Component {
 
     onAlbumContextMenu = (e) => {
         e.preventDefault()
-        const actions = [
-            {
-                title:'edit',
-                onClick: this.editAlbum
-            }
-        ]
-        PopupManager.show(<PopupMenu list={actions}/>,e.target)
+        if(this.state.selectedAlbums.data.length > 1) {
+            const actions = [
+                {
+                    title:'merge',
+                    onClick: this.mergeAlbums
+                }
+            ]
+            PopupManager.show(<PopupMenu list={actions}/>, e.target)
+        } else {
+            const actions = [
+                {
+                    title: 'edit',
+                    onClick: this.editAlbum
+                }
+            ]
+            PopupManager.show(<PopupMenu list={actions}/>, e.target)
+        }
     }
     onArtistContextMenu = (e) => {
         e.preventDefault()
@@ -114,25 +132,38 @@ export default class ArtistsView extends Component {
     }
     editAlbum = () => {
         PopupManager.hide()
-        DialogManager.show(<AlbumEditorDialog store={this.props.store} album={this.state.selectedAlbum} onComplete={this.refreshAlbums}/>)
+        DialogManager.show(<AlbumEditorDialog store={this.props.store}
+                                              album={this.state.selectedAlbums.get()[0]}
+                                              onComplete={this.refreshAlbums}/>)
     }
     editArtist = () => {
         PopupManager.hide()
-        DialogManager.show(<ArtistEditorDialog store={this.props.store} artist={this.state.selectedArtist} onComplete={this.refreshArtists}/>)
+        DialogManager.show(<ArtistEditorDialog store={this.props.store}
+                                               artist={this.state.selectedArtists.get()[0]}
+                                               onComplete={this.refreshArtists}/>)
     }
     mergeArtists = () => {
         PopupManager.hide()
-        this.props.store.mergeArtists(this.state.selectedArtists.get()).then((artist)=>{
-            this.refreshArtists().then(()=>{
+        this.props.store.mergeArtists(this.state.selectedArtists.get())
+            .then((artist)=> this.refreshArtists().then(()=>{
                 const one = this.state.query.find(a => a._id === artist._id)
                 this.state.selectedArtists.set(one)
-            })
-        })
+            }))
+    }
+    mergeAlbums = () => {
+        PopupManager.hide()
+        this.props.store.mergeAlbums(this.state.selectedAlbums.get())
+            .then((album)=> this.refreshAlbums().then(()=>{
+                const one = this.state.query.find(a => a._id === album._id)
+                console.log("setting the one",one)
+                this.state.selectedAlbums.set(one)
+            }))
     }
 
-    refreshArtists = () => {
-        return this.props.store.getArtists().then(artists => this.setState({query:artists}))
-    }
+    refreshArtists = () => this.props.store.getArtists()
+            .then(artists => this.setState({query:artists}))
+    refreshAlbums = () => this.props.store.getAlbumsForArtists(this.state.selectedArtists.data)
+            .then(albums => this.setState({query2:albums}))
 
     renderArtistItem = (artist,i) => {
         return <QueryTemplate
@@ -146,7 +177,7 @@ export default class ArtistsView extends Component {
     renderAlbumItem = (album,i) => {
         return <QueryTemplate
             key={i}
-            selected={album === this.state.selectedAlbum}
+            selected={this.state.selectedAlbums.isSelected(album)}
             item={album}
             onSelect={this.albumSelected}
             onContextMenu={this.onAlbumContextMenu}

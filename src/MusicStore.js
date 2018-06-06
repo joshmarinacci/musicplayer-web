@@ -1,4 +1,4 @@
-const BASE_URL = "http://music.josh.earth/api"
+const BASE_URL = "https://music.josh.earth/api"
 // const BASE_URL = "http://localhost:19872/api"
 let PASSWORD = null
 

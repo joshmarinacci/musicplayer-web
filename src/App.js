@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import './App.css';
 import 'font-awesome/css/font-awesome.min.css'
 import MusicStore from './MusicStore'
-import {Dialog, DialogContainer, DialogManager, PopupContainer} from "appy-comps"
+import {DialogContainer, DialogManager, PopupContainer} from "appy-comps"
 import MetadataEditorDialog from './MetadataEditorDialog'
-import SelectionTable from './SelectionTable'
 import DeleteDialog from './DeleteDialog'
-import AlbumEditorDialog from './AlbumEditorDialog'
 import SelectionListView from './SelectionListView'
 import ArtistsView from './ArtistsView'
 import AlbumsView from './AlbumsView'
+import LoginDialog from './LoginDialog'
 
 const STORE = new MusicStore()
 
@@ -29,6 +28,8 @@ class App extends Component {
             currentPlaylist:[],
             currentIndex:-1,
         }
+        //refresh after login
+        STORE.on('login',() => this.setState({sources:this.state.sources}))
     }
 
     sourcesItemSelected = (item) => {
@@ -90,6 +91,7 @@ class App extends Component {
         this.setState({playing:false})
     }
     render() {
+        if(!STORE.isLoggedIn()) return <div>you must log in first <LoginDialog store={STORE}/> </div>
         return (
             <div id='grid'>
                 <audio ref={(ref)=>this.audio = ref}

@@ -21,6 +21,20 @@ class ListSelection {
         this.data.push(item)
         this.fireChange()
     }
+    remove(item) {
+        const n = this.data.indexOf(item)
+        if(n >= 0) {
+            this.data = this.data.filter(it => it !== item)
+            this.fireChange()
+        }
+    }
+    toggle(item) {
+        if(this.isSelected(item)) {
+            this.remove(item)
+        } else {
+            this.add(item)
+        }
+    }
     get() {
         return this.data.slice()
     }
@@ -62,15 +76,15 @@ export default class ArtistsView extends Component {
     }
 
     artistSelected = (artist, e) => {
-        if(e.shiftKey) {
-            this.artistSelection.add(artist)
+        if(e.metaKey) {
+            this.artistSelection.toggle(artist)
         } else {
             this.artistSelection.set(artist)
         }
     }
     albumSelected = (album, e) => {
-        if(e.shiftKey) {
-            this.state.selectedAlbums.add(album)
+        if(e.metaKey) {
+            this.state.selectedAlbums.toggle(album)
         } else {
             this.state.selectedAlbums.set(album)
         }

@@ -174,15 +174,19 @@ export default class ArtistsView extends Component {
             onContextMenu={this.onArtistContextMenu}
             />
     }
+
     renderAlbumItem = (album,i) => {
-        return <QueryTemplate
-            key={i}
-            selected={this.state.selectedAlbums.isSelected(album)}
-            item={album}
-            onSelect={this.albumSelected}
-            onContextMenu={this.onAlbumContextMenu}
-        />
+        const selected = this.state.selectedAlbums.isSelected(album)
+        return (<li key={i}
+                   className={selected?"selected":""}
+                   onClick={(e)=>this.albumSelected(album,e)}
+                   onContextMenu={this.onAlbumContextMenu}
+        >
+            {album.name}
+            <img src={this.props.store.getArtworkURLForAlbum(album)} width={100}/>
+        </li>)
     }
+
     renderSongItem = (key,row,col) => {
         return <SongTableItemTemplate
             key={key}

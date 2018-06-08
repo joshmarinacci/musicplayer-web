@@ -36,6 +36,7 @@ function POST_JSON_FILE(path, file) {
             if(req.status === 404) rej(req);
         };
         req.open("POST",path,true);
+        req.setRequestHeader('jauth-password',PASSWORD)
         req.send(file);
     });
 }

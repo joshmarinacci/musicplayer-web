@@ -55,7 +55,7 @@ export default class ArtistsView extends Component {
         this.artistSelection.onChange((sel)=> {
             this.setState({artists:sel})
             this.props.store.getAlbumsForArtists(sel.data)
-                .then((albums)=>this.setState({query2:albums}))
+                .then((albums)=>this.setState({query2:albums, results:[]}))
         })
 
         this.state = {

@@ -119,6 +119,10 @@ export default class ArtistsView extends Component {
                 {
                     title: 'edit',
                     onClick: this.editAlbum
+                },
+                {
+                    title:'play',
+                    onClick: this.playAlbum
                 }
             ]
             PopupManager.show(<PopupMenu list={actions}/>, e.target)
@@ -149,6 +153,11 @@ export default class ArtistsView extends Component {
         DialogManager.show(<AlbumEditorDialog store={this.props.store}
                                               album={this.state.selectedAlbums.get()[0]}
                                               onComplete={this.refreshAlbums}/>)
+    }
+    playAlbum = () => {
+        PopupManager.hide()
+        const album = this.state.selectedAlbums.get()[0]
+        this.props.app.playAlbum(album)
     }
     editArtist = () => {
         PopupManager.hide()

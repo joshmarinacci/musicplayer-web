@@ -86,6 +86,15 @@ class App extends Component {
         this.audio.src = STORE.getSongURL(song)
         this.audio.play().then(() => this.setState({playing: true, currentTime:0}))
     }
+    playAlbum = (album) => {
+        STORE.getSongsForAlbum(album).then((songs)=>{
+            this.setState({
+                currentPlaylist:songs,
+                currentIndex:0,
+            })
+            this.startSong(songs[0])
+        })
+    }
     stopSong = () => {
         this.audio.pause()
         this.setState({playing:false})

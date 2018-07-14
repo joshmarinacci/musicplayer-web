@@ -1,3 +1,6 @@
+#root #popup-wrapper {
+    background-color: transparent !important;
+}
 
 .popup-menu {
     padding: 1em 0;
@@ -5,6 +8,8 @@
     border-radius: 1em;
     background-color: white;
     margin:0.25em;
+    display: flex;
+    flex-direction: column;
 }
 
 .popup-menu .item {

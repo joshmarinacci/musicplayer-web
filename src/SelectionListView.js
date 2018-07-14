@@ -3,6 +3,10 @@ import React, {Component} from 'react'
 export default class SelectionListView extends Component {
     keyDown = (e) => {
         e.preventDefault()
+        if(this.props.selection) {
+            if(e.keyCode === 40) return this.props.selection.selectNext(this.props.list)
+            if(e.keyCode === 38) return this.props.selection.selectPrev(this.props.list)
+        }
         const index = this.props.list.indexOf(this.props.selected)
         if(e.keyCode === 40) { // down arrow
             if (index >= 0 && index < this.props.list.length - 1) {

@@ -45,6 +45,22 @@ class ListSelection {
     isSelected(item) {
         return this.data.indexOf(item) >= 0
     }
+    selectNext(list) {
+        const found = list.find(it => this.isSelected(it))
+        let index = list.indexOf(found)
+        if(index >= 0 && index+1 < list.length) {
+            index = index+1
+            this.set(list[index])
+        }
+    }
+    selectPrev(list) {
+        const found = list.find(it => this.isSelected(it))
+        let index = list.indexOf(found)
+        if(index >= 1) {
+            index = index-1
+            this.set(list[index])
+        }
+    }
 }
 
 export default class ArtistsView extends Component {
@@ -57,16 +73,17 @@ export default class ArtistsView extends Component {
             this.props.store.getAlbumsForArtists(sel.data)
                 .then((albums)=>this.setState({query2:albums, results:[]}))
         })
+        this.albumSelection = new ListSelection()
 
         this.state = {
             query:[],
             query2:[],
             results:[],
             selectedArtists:this.artistSelection,
-            selectedAlbums:new ListSelection(),
+            selectedAlbums:this.albumSelection,
             selectedSongs:[],
         }
-        this.state.selectedAlbums.onChange((sel)=>{
+        this.albumSelection.onChange((sel)=>{
             this.setState({albums:sel})
             this.props.store.getSongsForAlbums(sel.data)
                 .then((songs)=>this.setState({results:songs}))
@@ -228,12 +245,14 @@ export default class ArtistsView extends Component {
             <SelectionListView id='query'
                                makeTemplate={this.renderArtistItem}
                                list={this.state.query}
+                               selection={this.artistSelection}
                                style={{ gridColumn:'col1', gridRow:'content'}}
             />
             <header style={{gridColumn:'col2',gridRow:'header'}}>Albums</header>
             <SelectionListView id='query2'
                                makeTemplate={this.renderAlbumItem}
                                list={this.state.query2}
+                               selection={this.albumSelection}
                                style={{ gridColumn:'col2', gridRow:'content'}}
             />
             <SelectionTable id="results"

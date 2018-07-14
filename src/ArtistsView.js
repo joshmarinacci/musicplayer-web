@@ -219,6 +219,7 @@ export default class ArtistsView extends Component {
             onSelect={this.songSelected}
             app={this.props.app}
             selected={this.isSelected(row)}
+            currentList={this.state.results}
         />
     }
     render() {
@@ -268,7 +269,7 @@ const SongTableItemTemplate = (props) => {
     }
     return <td className={props.selected?"selected":""}
                onClick={(e)=>props.onSelect(props.row,e)}
-               onDoubleClick={()=>props.app.startSong(props.row)}
+               onDoubleClick={()=>props.app.playNewSong(props.row, props.currentList)}
     >{val}</td>
 }
 
